@@ -1,0 +1,51 @@
+<p-card styleClass="w-[25rem]">
+  <ng-template pTemplate="header">
+    <div class="flex justify-between items-center px-7 py-3 bg-gray-100 shadow-sm">
+      <h2 class="text-2xl">{{device.name}}</h2>
+      <span class="bg-green-600 w-8 h-8 rounded-full" pTooltip="متاح" *ngIf="isAvailable"></span>
+      <span class="bg-red-600 w-8 h-8 rounded-full animate-pulse" pTooltip="مشغول" *ngIf="!isAvailable"></span>
+    </div>
+    <img alt="Card" src="assets/ps4.png" class="max-w-[10rem] m-auto mt-4" />
+  </ng-template>
+  <div class="w-full text-center font-semibold">
+    <span class="text-7xl">{{remainingTime|formatSeconds}}</span>
+    <div *ngIf="!isAvailable" class="mt-3 border-t-2">
+      <p-table [value]="device.play_sessions" responsiveLayout="scroll">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>بدء</th>
+            <th>انتهاء</th>
+            <th>المده</th>
+            <th>النوع</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-session>
+          <tr>
+            <td>{{session.start_time|date:'hh:mm a':'GMT+2'}}</td>
+            <td>{{session.end_time|date:'hh:mm a':'GMT+2'}}</td>
+            <td>{{session.duration}}</td>
+            <td>{{session.isMulti ? 'مالتي':'عادي'}}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+          <h1 class="text-left">
+            <span>التكلفة الكليه:</span>
+            <span>{{play_cost}}</span>
+          </h1>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <div class="text-center" dir="ltr" *ngIf="isAvailable">
+      <p-splitButton label="عادي" [model]="singleTimeList" (onClick)="startPlaySession(0)" styleClass="p-button-raised p-button-sm p-button-success mr-2 mb-2"></p-splitButton>
+      <p-splitButton label="مالتي" [model]="multiTimeList" (onClick)="startPlaySession(0,true)" styleClass="p-button-raised p-button-sm p-button-success mr-2 mb-2"></p-splitButton>
+    </div>
+    <div class="text-center space-x-5" dir="ltr" *ngIf="!isAvailable">
+      <button pButton type="button" icon="pi pi-replay" (click)="switchToMulti()" pTooltip="تحويل الي مالتي" class="p-button-raised p-button-rounded p-button-warning"></button>
+      <button pButton type="button" label="التفاصيل" (click)="calculatePrice()" icon="pi pi-info-circle" class="p-button-sm p-button-info" iconPos="right"></button>
+      <button pButton type="button" label="ايقاف" icon="pi pi-stop-circle" class="p-button-sm p-button-danger" iconPos="right"></button>
+
+    </div>
+  </ng-template>
+</p-card>

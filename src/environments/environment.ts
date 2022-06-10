@@ -3,7 +3,15 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  firebase: {
+    apiKey: "AIzaSyC7CIJY4NSZPFy3k2_dZb0EImHcWUhTxOw",
+    authDomain: "pscafe-f020d.firebaseapp.com",
+    projectId: "pscafe-f020d",
+    storageBucket: "pscafe-f020d.appspot.com",
+    messagingSenderId: "38687365698",
+    appId: "1:38687365698:web:694a700833fa5fdc4bebdb"
+  }
 };
 
 /*
