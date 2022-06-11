@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model cafe_categories {
+  id         Int          @id @default(autoincrement())
+  name       String?      @unique(map: "name") @db.VarChar(100)
+  cafe_items cafe_items[]
+}
+
+model cafe_invoice_items {
+  id              Int            @id @default(autoincrement())
+  cafe_invoice_id Int?
+  cafe_item_id    Int?
+  price           Decimal?       @db.Decimal(10, 2)
+  quantity        Int?
+  cafe_invoices   cafe_invoices? @relation(fields: [cafe_invoice_id], references: [id], onDelete: Cascade, map: "cafe_invoice_items_ibfk_1")
+  cafe_items      cafe_items?    @relation(fields: [cafe_item_id], references: [id], onDelete: Cascade, map: "cafe_invoice_items_ibfk_2")
+
+  @@index([cafe_invoice_id], map: "cafe_invoice_id")
+  @@index([cafe_item_id], map: "cafe_item_id")
+}
+
+model cafe_invoices {
+  id                 Int                  @id @default(autoincrement())
+  created_at         DateTime?            @db.DateTime(0)
+  play_invoice_id    Int?
+  user_id            Int?
+  play_invoices      play_invoices?       @relation(fields: [play_invoice_id], references: [id], onDelete: Cascade, map: "cafe_invoices_ibfk_1")
+  users              users?               @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "cafe_invoices_ibfk_2")
+  cafe_invoice_items cafe_invoice_items[]
+
+  @@index([play_invoice_id], map: "play_invoice_id")
+  @@index([user_id], map: "user_id")
+}
+
+model cafe_items {
+  id                 Int                  @id @default(autoincrement())
+  name               String               @unique(map: "name") @db.VarChar(100)
+  price              Decimal              @db.Decimal(10, 2)
+  category_id        Int?
+  cafe_categories    cafe_categories?     @relation(fields: [category_id], references: [id], onDelete: Cascade, map: "cafe_items_ibfk_1")
+  cafe_invoice_items cafe_invoice_items[]
+  inventory          inventory[]
+
+  @@index([category_id], map: "category_id")
+}
+
+model device_categories {
+  id           Int       @id @default(autoincrement())
+  name         String    @unique(map: "name") @db.VarChar(50)
+  single_price Decimal   @default(0.00) @db.Decimal(10, 2)
+  multi_price  Decimal?  @default(0.00) @db.Decimal(10, 2)
+  devices      devices[]
+}
+
+model devices {
+  id                Int               @id @default(autoincrement())
+  name              String            @unique(map: "name") @db.VarChar(80)
+  category_id       Int
+  device_categories device_categories @relation(fields: [category_id], references: [id], onDelete: Cascade, map: "devices_ibfk_1")
+  play_invoices     play_invoices[]
+
+  @@index([category_id], map: "category_id")
+}
+
+model inventory {
+  id         Int             @id @default(autoincrement())
+  item_id    Int?
+  quantity   Int?
+  type       inventory_type? @default(OUT)
+  cafe_items cafe_items?     @relation(fields: [item_id], references: [id], onDelete: Cascade, map: "inventory_ibfk_1")
+
+  @@index([item_id], map: "item_id")
+}
+
+model logs {
+  id         Int       @id @default(autoincrement())
+  details    String?   @db.VarChar(255)
+  created_at DateTime? @db.DateTime(0)
+  user_id    Int?
+  users      users?    @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "logs_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model play_invoices {
+  id            Int             @id @default(autoincrement())
+  device_id     Int
+  start         DateTime        @db.DateTime(0)
+  end           DateTime?       @db.DateTime(0)
+  duration      Int?
+  multi         Boolean?        @default(false)
+  user_id       Int?
+  devices       devices         @relation(fields: [device_id], references: [id], onDelete: Cascade, map: "play_invoices_ibfk_1")
+  users         users?          @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "play_invoices_ibfk_2")
+  cafe_invoices cafe_invoices[]
+
+  @@index([device_id], map: "device_id")
+  @@index([user_id], map: "user_id")
+}
+
+model users {
+  id            Int             @id @default(autoincrement())
+  name          String          @db.VarChar(255)
+  phone         String          @unique(map: "phone") @db.VarChar(15)
+  username      String          @unique(map: "username") @db.VarChar(100)
+  password      String          @db.VarChar(100)
+  isAdmin       Boolean?        @default(false)
+  cafe_invoices cafe_invoices[]
+  logs          logs[]
+  play_invoices play_invoices[]
+}
+
+enum inventory_type {
+  IN
+  OUT
+}
