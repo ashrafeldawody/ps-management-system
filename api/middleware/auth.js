@@ -9,6 +9,7 @@ const verifyToken = (req, res, next) => {
   }
   try {
     req.user = jwt.verify(token, config.TOKEN_KEY);
+    req.isAdmin = req.user.isAdmin;
   } catch (err) {
     return res.status(401).send("Invalid Token");
   }

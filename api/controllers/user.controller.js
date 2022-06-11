@@ -1,4 +1,3 @@
-const UserModel = require('../models/user.model');
 const { PrismaClient } = require('@prisma/client')
 const jwt = require("jsonwebtoken");
 const prisma = new PrismaClient()
@@ -25,10 +24,10 @@ exports.login = async (req, res) => {
     },
   })
   const token = jwt.sign(
-    { user_id: user._id, username },
+    { user_id: user.id, username,isAdmin: user.isAdmin },
     process.env.TOKEN_KEY,
     {
-      expiresIn: "2h",
+      expiresIn: "12h",
     }
   );
   user.token = token
